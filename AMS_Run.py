@@ -13,7 +13,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-fromaddr = "elangovanelangovan2003@gmail.com"
+fromaddr = "smtp@gmail.com"
 toaddr = "bv4570@srmist.edu.in"
 
 window = tk.Tk()
@@ -114,7 +114,7 @@ def SendMail():
     s.starttls()
 
     # Authentication
-    s.login(fromaddr, "qaqp vqyl jsav ivgw")
+    s.login(fromaddr, "123412")
 
     # Converts the Multipart msg into a string
     text = msg.as_string()
