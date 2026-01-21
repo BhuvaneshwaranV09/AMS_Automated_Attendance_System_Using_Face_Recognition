@@ -1,9 +1,9 @@
 import smtplib
 
-smtp_host = 'smtp.gmail.com'
-smtp_port = 587
-smtp_user = 'elangovanelangovan2003@gmail.com'
-smtp_pass = 'qaqp vqyl jsav ivgw'
+smtp_host = '...........'
+smtp_port = ...
+smtp_user = '................'
+smtp_pass = '...........'
 
 try:
     server = smtplib.SMTP(smtp_host, smtp_port)
