@@ -1,0 +1,8 @@
+opencv-contrib-python
+numpy
+pandas
+pillow
+fastapi
+uvicorn
+python-multipart
+requests
