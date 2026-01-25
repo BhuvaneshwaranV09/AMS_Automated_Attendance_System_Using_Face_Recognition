@@ -127,6 +127,66 @@ app.post("/api/email/send-attendance", async (req, res) => {
   }
 });
 
+app.get("/api/subjects", async (req, res) => {
+  try {
+    const response = await axios.get(`${FASTAPI_URL}/api/subjects`);
+    res.json(response.data);
+  } catch (error: any) {
+    res.status(error.response?.status || 500).json({ 
+      success: false, 
+      message: error.response?.data?.detail || error.message 
+    });
+  }
+});
+
+app.post("/api/admin/instructors", async (req, res) => {
+  try {
+    const response = await axios.post(`${FASTAPI_URL}/api/admin/instructors`, req.body);
+    res.json(response.data);
+  } catch (error: any) {
+    res.status(error.response?.status || 500).json({ 
+      success: false, 
+      message: error.response?.data?.detail || error.message 
+    });
+  }
+});
+
+app.get("/api/admin/instructors", async (req, res) => {
+  try {
+    const response = await axios.get(`${FASTAPI_URL}/api/admin/instructors`);
+    res.json(response.data);
+  } catch (error: any) {
+    res.status(error.response?.status || 500).json({ 
+      success: false, 
+      message: error.response?.data?.detail || error.message 
+    });
+  }
+});
+
+app.get("/api/admin/instructors/:id/details", async (req, res) => {
+  try {
+    const response = await axios.get(`${FASTAPI_URL}/api/admin/instructors/${req.params.id}/details`);
+    res.json(response.data);
+  } catch (error: any) {
+    res.status(error.response?.status || 500).json({ 
+      success: false, 
+      message: error.response?.data?.detail || error.message 
+    });
+  }
+});
+
+app.get("/api/instructor/subjects", async (req, res) => {
+  try {
+    const response = await axios.get(`${FASTAPI_URL}/api/instructor/subjects?email=${req.query.email}`);
+    res.json(response.data);
+  } catch (error: any) {
+    res.status(error.response?.status || 500).json({ 
+      success: false, 
+      message: error.response?.data?.detail || error.message 
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Express.js server running on http://localhost:${PORT}`);
   console.log(`Proxying requests to FastAPI at ${FASTAPI_URL}`);

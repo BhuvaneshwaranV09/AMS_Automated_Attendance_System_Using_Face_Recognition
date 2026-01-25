@@ -17,12 +17,16 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
-    try {
-      const result = await api.login(username, password);
-      if (result.success) {
-        localStorage.setItem('isLoggedIn', 'true');
-        router.push('/dashboard');
-      }
+      try {
+        const result = await api.login(username, password);
+        if (result.success) {
+          localStorage.setItem('isLoggedIn', 'true');
+          localStorage.setItem('userRole', result.role);
+          localStorage.setItem('userEmail', result.email);
+          localStorage.setItem('userName', result.name || result.email);
+          router.push('/dashboard');
+        }
+
     } catch (err: any) {
       setError(err.response?.data?.message || 'Login failed');
     } finally {

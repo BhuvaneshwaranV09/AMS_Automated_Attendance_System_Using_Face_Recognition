@@ -1,0 +1,6 @@
+{
+  "name": "Test Instructor 5",
+  "email": "test5@example.com",
+  "password": "pass",
+  "subjects": ["Mathematics", "NewSubject5"]
+}

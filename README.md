@@ -51,7 +51,7 @@ Before running this application, make sure you have the following installed:
 
 ```bash
 git clone <repository-url>
-cd AMS_Run
+cd AMS_Automated_Attendance_System_Using_Face_Recognition
 ```
 
 ### 2. Backend Setup
@@ -209,19 +209,69 @@ curl -X POST "http://localhost:8000/api/attendance/mark" \
 ## 🗂 Project Structure
 
 ```
-AMS_Run/
+AMS_Automated_Attendance_System_Using_Face_Recognition/
+├── add_student.py                  # Script to add students
+├── AMS.ico                         # Application icon
+├── AMS.png                         # Application logo
 ├── api.py                          # FastAPI application
+├── check_constraints.py            # Database constraint checker
+├── check_students.py               # Student data checker
+├── debug_attendance.py             # Attendance debugging script
+├── fix_constraint.py               # Constraint fixing script
+├── fix_enrollment.py               # Enrollment fixing script
+├── haarcascade_frontalface_alt.xml # Haar cascade for face detection
+├── haarcascade_frontalface_default.xml # Default Haar cascade
+├── main.py                         # Main application entry point
+├── quick_login_test.py             # Login testing script
+├── quick_test.py                   # Quick testing script
+├── README.md                       # This file
+├── repro_add_instructor_v2.py      # Instructor addition script v2
+├── repro_add_instructor.py         # Instructor addition script
 ├── requirements.txt                # Python dependencies
-├── services/
+├── reset_db.py                     # Database reset script
+├── retrain.py                      # Model retraining script
+├── test_api.py                     # API testing script
+├── test_attendance.py              # Attendance testing script
+├── test_capture.py                 # Capture testing script
+├── test_express.py                 # Express server testing script
+├── test_get_subjects.py            # Subject retrieval testing script
+├── test_payload.json               # Test payload data
+├── test_smtp.py                    # SMTP testing script
+├── test_supabase.py                # Supabase testing script
+├── testing.py                      # General testing script
+├── training.py                     # Training script
+├── express-server/                 # Express.js server
+│   ├── bun.lock                    # Bun lock file
+│   ├── index.ts                    # Express server entry point
+│   ├── package-lock.json           # NPM lock file
+│   ├── package.json                # Express server dependencies
+│   ├── README.md                   # Express server documentation
+│   └── tsconfig.json               # TypeScript configuration
+├── nextjs-frontend/                # React frontend
+│   ├── bun.lock                    # Bun lock file
+│   ├── next-env.d.ts               # Next.js environment types
+│   ├── next.config.js              # Next.js configuration
+│   ├── package-lock.json           # NPM lock file
+│   ├── package.json                # Frontend dependencies
+│   ├── postcss.config.js           # PostCSS configuration
+│   ├── tailwind.config.js          # Tailwind CSS configuration
+│   ├── tsconfig.json               # TypeScript configuration
+│   ├── app/                        # Next.js app directory
+│   │   ├── globals.css             # Global styles
+│   │   ├── layout.tsx              # Root layout
+│   │   ├── page.tsx                # Home page
+│   │   └── dashboard/              # Dashboard pages
+│   │       └── page.tsx            # Dashboard page
+│   └── lib/                        # Utilities
+│       └── api.ts                  # API utilities
+├── services/                       # Python services
+│   ├── __init__.py                 # Package initialization
 │   └── face_recognition_service.py # Face recognition logic
 ├── TrainingImage/                  # Local training images
 ├── TrainingImageLabel/             # Model and mappings
-├── nextjs-frontend/                # React frontend
-│   ├── app/                        # Next.js app directory
-│   ├── lib/                        # Utilities
-│   └── package.json
-├── express-server/                 # Express.js server
-├── .env                            # Environment variables
+│   ├── enrollment_map.json         # Enrollment to ID mapping
+│   └── Trainner.yml                # Trained model file
+├── .env                            # Environment variables (not in repo)
 ├── .gitignore                      # Git ignore rules
 └── README.md                       # This file
 ```

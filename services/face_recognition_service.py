@@ -44,15 +44,30 @@ class FaceRecognitionService:
         
         sample_num = 0
         uploaded_to_supabase = 0
+        start_capture_time = time.time()
+        timeout = 30 # 30 seconds timeout for entire capture process
+        last_face_detected_time = time.time()
         
         while sample_num < num_images:
+            if time.time() - start_capture_time > timeout:
+                cam.release()
+                return {"success": False, "message": "Capture timeout. Please ensure your face is visible and well-lit."}
+            
+            if time.time() - last_face_detected_time > 10: # 10 seconds without a single face
+                cam.release()
+                return {"success": False, "message": "No face detected for 10 seconds. Please look directly at the camera."}
+
             ret, img = cam.read()
             if not ret:
                 continue
                 
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            faces = self.detector.detectMultiScale(gray, 1.3, 5)
+            # Using more robust parameters for face detection
+            faces = self.detector.detectMultiScale(gray, 1.2, 5)
             
+            if len(faces) > 0:
+                last_face_detected_time = time.time()
+
             for (x, y, w, h) in faces:
                 sample_num += 1
                 img_name = f"{name}.{enrollment}.{sample_num}.jpg"
@@ -121,10 +136,10 @@ class FaceRecognitionService:
             
             numeric_id = enrollment_to_id[enrollment]
             
-            faces = self.detector.detectMultiScale(image_np)
-            for (x, y, w, h) in faces:
-                face_samples.append(image_np[y:y+h, x:x+w])
-                ids.append(numeric_id)
+            # Since images are already cropped to faces during capture,
+            # we can use the whole image or try to detect again with very lenient parameters
+            face_samples.append(image_np)
+            ids.append(numeric_id)
         
         if not face_samples:
             return {"success": False, "message": "No faces detected in training images"}
@@ -181,7 +196,7 @@ class FaceRecognitionService:
                 continue
             
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            faces = self.detector.detectMultiScale(gray, 1.2, 5)
+            faces = self.detector.detectMultiScale(gray, 1.1, 5)
             
             for (x, y, w, h) in faces:
                 face_id, conf = self.recognizer.predict(gray[y:y+h, x:x+w])
