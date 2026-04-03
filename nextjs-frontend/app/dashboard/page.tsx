@@ -530,6 +530,7 @@ export default function Dashboard() {
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: number | string; name: string; type: 'instructor' | 'student' } | null>(null);
   const [emailModal, setEmailModal] = useState<{ isOpen: boolean; subject: string; date: string } | null>(null);
   const [cameraModal, setCameraModal] = useState<{ isOpen: boolean; mode: 'capture' | 'attendance' } | null>(null);
+  const [selectedDate, setSelectedDate] = useState('');
 
   // Forms
 
@@ -1050,41 +1051,83 @@ export default function Dashboard() {
         {activeTab === 'attendance-history' && userRole === 'instructor' && (
           <div className="space-y-6">
             <div className="bg-white p-8 rounded-2xl border border-neutral-200 shadow-sm">
-              <h2 className="text-xl font-bold mb-6">My Subjects Attendance</h2>
-              {attendance.filter(f => instructorSubjects.includes(f.subject)).map((file, i) => (
-                <div key={i} className="mb-6 border rounded-2xl overflow-hidden">
-                  <div className="p-4 bg-neutral-50 flex justify-between items-center border-b">
-                    <div>
-                      <h3 className="font-bold">{file.subject}</h3>
-                      <p className="text-sm text-neutral-500">{file.date}</p>
-                    </div>
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+                <h2 className="text-xl font-bold">My Subjects Attendance</h2>
+                <div className="flex items-center gap-3 bg-neutral-50 p-2 rounded-xl border border-neutral-100">
+                  <span className="text-sm font-medium text-neutral-500 ml-2">Filter by Date:</span>
+                  <input
+                    type="date"
+                    className="px-3 py-1.5 bg-white border border-neutral-200 rounded-lg text-sm font-medium focus:ring-2 focus:ring-neutral-900 transition-all outline-none"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                  />
+                  {selectedDate && (
                     <button
-                      onClick={() => setEmailModal({ isOpen: true, subject: file.subject, date: file.date })}
-                      className="px-3 py-1.5 bg-white border border-neutral-200 rounded-lg text-sm font-medium"
+                      onClick={() => setSelectedDate('')}
+                      className="p-1.5 hover:bg-neutral-200 rounded-md transition-colors text-neutral-400"
+                      title="Clear Filter"
                     >
-                      Email Report
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
-                  </div>
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="bg-white border-b">
-                        <th className="p-3">Enrollment</th>
-                        <th className="p-3">Name</th>
-                        <th className="p-3">Time</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {file.records.map((r, j) => (
-                        <tr key={j} className="border-b">
-                          <td className="p-3">{r.Enrollment}</td>
-                          <td className="p-3">{r.Name}</td>
-                          <td className="p-3">{r.Time}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                  )}
                 </div>
-              ))}
+              </div>
+
+              {(() => {
+                const filteredAttendance = attendance
+                  .filter(f => instructorSubjects.includes(f.subject))
+                  .filter(f => !selectedDate || f.date === selectedDate);
+                
+                if (filteredAttendance.length === 0) {
+                  return (
+                    <div className="text-center py-12 bg-neutral-50 rounded-2xl border-2 border-dashed border-neutral-200">
+                      <svg className="w-12 h-12 text-neutral-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <p className="text-neutral-500 font-medium">
+                        {selectedDate 
+                          ? `No attendance records found for ${new Date(selectedDate).toLocaleDateString()}.`
+                          : "No attendance records found for your subjects."}
+                      </p>
+                    </div>
+                  );
+                }
+
+                return filteredAttendance.map((file, i) => (
+                  <div key={i} className="mb-6 border rounded-2xl overflow-hidden shadow-sm">
+                    <div className="p-4 bg-neutral-50 flex justify-between items-center border-b">
+                      <div>
+                        <h3 className="font-bold">{file.subject}</h3>
+                        <p className="text-sm text-neutral-500">{file.date}</p>
+                      </div>
+                      <button
+                        onClick={() => setEmailModal({ isOpen: true, subject: file.subject, date: file.date })}
+                        className="px-3 py-1.5 bg-white border border-neutral-200 rounded-lg text-sm font-medium"
+                      >
+                        Email Report
+                      </button>
+                    </div>
+                    <table className="w-full text-left text-sm">
+                      <thead>
+                        <tr className="bg-white border-b">
+                          <th className="p-3">Enrollment</th>
+                          <th className="p-3">Name</th>
+                          <th className="p-3">Time</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {file.records.map((r, j) => (
+                          <tr key={j} className="border-b">
+                            <td className="p-3">{r.Enrollment}</td>
+                            <td className="p-3">{r.Name}</td>
+                            <td className="p-3">{r.Time}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         )}
