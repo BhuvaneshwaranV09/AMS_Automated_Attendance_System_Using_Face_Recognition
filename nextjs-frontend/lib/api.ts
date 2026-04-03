@@ -48,42 +48,62 @@ export const api = {
     return res.data;
   },
 
-    sendAttendanceEmail: async (subject: string, date: string, recipientEmail: string) => {
-      const res = await axios.post(`${API_BASE}/email/send-attendance`, {
-        subject,
-        date,
-        recipient_email: recipientEmail,
-      });
-      return res.data;
-    },
+  sendAttendanceEmail: async (subject: string, date: string, recipientEmail: string) => {
+    const res = await axios.post(`${API_BASE}/email/send-attendance`, {
+      subject,
+      date,
+      recipient_email: recipientEmail,
+    });
+    return res.data;
+  },
 
-    getSubjects: async () => {
-      const res = await axios.get(`${API_BASE}/subjects`);
-      return res.data;
-    },
+  getSubjects: async () => {
+    const res = await axios.get(`${API_BASE}/subjects`);
+    return res.data;
+  },
 
-    addInstructor: async (instructorData: any) => {
-      const res = await axios.post(`${API_BASE}/admin/instructors`, instructorData);
-      return res.data;
-    },
+  addInstructor: async (instructorData: any) => {
+    const res = await axios.post(`${API_BASE}/admin/instructors`, instructorData);
+    return res.data;
+  },
 
-    getInstructors: async () => {
-      const res = await axios.get(`${API_BASE}/admin/instructors`);
-      return res.data;
-    },
+  getInstructors: async () => {
+    const res = await axios.get(`${API_BASE}/admin/instructors`);
+    return res.data;
+  },
 
-    getInstructorDetails: async (id: number) => {
-      const res = await axios.get(`${API_BASE}/admin/instructors/${id}/details`);
-      return res.data;
-    },
+  getInstructorDetails: async (id: number) => {
+    const res = await axios.get(`${API_BASE}/admin/instructors/${id}/details`);
+    return res.data;
+  },
 
-    getInstructorSubjects: async (email: string) => {
-      const res = await axios.get(`${API_BASE}/instructor/subjects?email=${email}`);
-      return res.data;
-    },
+  getInstructorSubjects: async (email: string) => {
+    const res = await axios.get(`${API_BASE}/instructor/subjects?email=${email}`);
+    return res.data;
+  },
 
-    deleteInstructor: async (id: number) => {
-      const res = await axios.delete(`${API_BASE}/admin/instructors/${id}`);
-      return res.data;
-    },
-  };
+  deleteInstructor: async (id: number) => {
+    const res = await axios.delete(`${API_BASE}/admin/instructors/${id}`);
+    return res.data;
+  },
+
+  captureFrame: async (enrollment: string, name: string, sampleNum: number, file: Blob) => {
+    const formData = new FormData();
+    formData.append('enrollment', enrollment);
+    formData.append('name', name);
+    formData.append('sample_num', sampleNum.toString());
+    formData.append('file', file, `frame_${sampleNum}.jpg`);
+
+    const res = await axios.post(`${API_BASE}/students/capture-frame`, formData);
+    return res.data;
+  },
+
+  recognizeFrame: async (subject: string, file: Blob) => {
+    const formData = new FormData();
+    formData.append('subject', subject);
+    formData.append('file', file, 'frame.jpg');
+
+    const res = await axios.post(`${API_BASE}/attendance/recognize-frame`, formData);
+    return res.data;
+  },
+};

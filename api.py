@@ -1,10 +1,13 @@
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, Body, File, UploadFile, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import Optional, List
+from typing import Annotated, Optional, List
 import sys
 import os
 from pathlib import Path
+import shutil
+import datetime
+import time
 from dotenv import load_dotenv
 from supabase import create_client, Client
 import psycopg2
@@ -150,6 +153,27 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    print(f"Validation error: {exc}")
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors(), "body": exc.body},
+    )
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request, exc):
+    print(f"Global error: {exc}")
+    import traceback
+    traceback.print_exc()
+    return JSONResponse(
+        status_code=500,
+        content={"detail": str(exc)},
+    )
+
 class StudentRequest(BaseModel):
     enrollment: str
     name: str
@@ -211,6 +235,28 @@ async def capture_student_images(request: StudentRequest):
             print(f"Supabase error: {e}")
     
     return result
+    
+@app.post("/api/students/capture-frame")
+async def capture_frame(
+    enrollment: Annotated[str, Form()],
+    name: Annotated[str, Form()],
+    sample_num: Annotated[str, Form()],
+    file: UploadFile
+):
+    print(f"Received frame for {enrollment} (sample {sample_num})")
+    try:
+        s_num = int(sample_num)
+    except:
+        s_num = 0
+    image_bytes = await file.read()
+    result = face_service.process_training_frame(
+        image_bytes=image_bytes,
+        enrollment=enrollment,
+        name=name,
+        sample_num=s_num
+    )
+    return result
+
 
 
 @app.post("/api/model/train")
@@ -234,31 +280,21 @@ async def mark_attendance(request: AttendanceRequest):
     print(f"[DEBUG] Supabase configured: {supabase is not None}")
     print(f"[DEBUG] Recognized list: {result.get('recognized')}")
     
-    if supabase and result.get("recognized"):
-        for record in result.get("recognized", []):
-            try:
-                print(f"[DEBUG] Saving attendance for: {record}")
-                student = supabase.table("students").select("id").eq("enrollment", str(record.get("enrollment", ""))).execute()
-                student_id = student.data[0]["id"] if student.data else None
-                print(f"[DEBUG] Student ID found: {student_id}")
-                
-                insert_data = {
-                    "enrollment": str(record.get("enrollment", "")),
-                    "name": record.get("name", ""),
-                    "subject": request.subject,
-                    "date": record.get("date", ""),
-                    "time": record.get("time", "")
-                }
-                print(f"[DEBUG] Insert data: {insert_data}")
-                
-                insert_result = supabase.table("attendance").insert(insert_data).execute()
-                print(f"[DEBUG] Insert result: {insert_result.data}")
-            except Exception as e:
-                print(f"[ERROR] Supabase attendance error for {record}: {e}")
-                import traceback
-                traceback.print_exc()
-    
     return result
+
+@app.post("/api/attendance/recognize-frame")
+async def recognize_frame(
+    subject: Annotated[str, Form()],
+    file: UploadFile
+):
+    print(f"Received recognition frame for subject: {subject}")
+    image_bytes = await file.read()
+    result = face_service.process_recognition_frame(
+        image_bytes=image_bytes,
+        subject=subject
+    )
+    return result
+
 
 
 @app.get("/api/students")
@@ -273,8 +309,6 @@ async def get_students():
 
 @app.delete("/api/students/{enrollment}")
 async def delete_student(enrollment: str):
-    import shutil
-    
     if not supabase:
         raise HTTPException(status_code=500, detail="Supabase not configured")
     
@@ -582,4 +616,4 @@ async def send_attendance_email(request: EmailRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True, log_level="debug")
